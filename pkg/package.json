@@ -1,0 +1,14 @@
+{
+  "name": "autocorrect-wasm",
+  "version": "2.8.5",
+  "files": [
+    "autocorrect_wasm_bg.wasm",
+    "autocorrect_wasm.js",
+    "autocorrect_wasm.d.ts"
+  ],
+  "module": "autocorrect_wasm.js",
+  "types": "autocorrect_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
