@@ -10,13 +10,12 @@ export default class MyPlugin extends Plugin {
 
 		await init('https://img.ypll.xyz/dev/autocorrect_wasm/pkg/autocorrect_wasm_bg.wasm')
 
-		let editor = markdownView.editor;
-		let content = editor.getValue();
-
 		this.addCommand({
 			id: 'formatting-content',
 			name: 'Formatting Content',
 			callback: () => {
+				const editor = markdownView.editor;
+				const content = editor.getValue();
 				const formattedContent = format(content)
 				editor.setValue(formattedContent)
 			},
