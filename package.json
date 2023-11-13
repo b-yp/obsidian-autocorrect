@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
-	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"name": "autocorrect-formatter",
+	"version": "1.0.2",
+	"description": "A plugin running on Obsidian that utilizes autocorrect to format Markdown content.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
