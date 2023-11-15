@@ -1,6 +1,9 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { MarkdownView, Plugin } from 'obsidian';
 import init, { format } from 'autocorrect-wasm'
 import { v4 as uuidv4 } from 'uuid'
+
+// @ts-ignore
+import autocorrectWasm from './pkg/autocorrect_wasm_bg.wasm'
 
 export default class AutocorrectPlugin extends Plugin {
 	async onload() {
@@ -9,7 +12,7 @@ export default class AutocorrectPlugin extends Plugin {
 			return;
 		}
 
-		await init('https://img.ypll.xyz/dev/autocorrect_wasm/pkg/autocorrect_wasm_bg.wasm')
+		await init(autocorrectWasm)
 
 		this.addCommand({
 			id: 'format-content',
