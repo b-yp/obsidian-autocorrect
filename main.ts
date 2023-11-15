@@ -2,7 +2,7 @@ import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Set
 import init, { format } from 'autocorrect-wasm'
 import { v4 as uuidv4 } from 'uuid'
 
-export default class MyPlugin extends Plugin {
+export default class AutocorrectPlugin extends Plugin {
 	async onload() {
 		const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
 		if (!markdownView) {
@@ -12,8 +12,8 @@ export default class MyPlugin extends Plugin {
 		await init('https://img.ypll.xyz/dev/autocorrect_wasm/pkg/autocorrect_wasm_bg.wasm')
 
 		this.addCommand({
-			id: 'formatting-content',
-			name: 'Formatting Content',
+			id: 'format-content',
+			name: 'Format content',
 			callback: () => {
 				const editor = markdownView.editor;
 				let content = editor.getValue();

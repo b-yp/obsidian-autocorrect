@@ -4,7 +4,7 @@
 
 ## Usage
 
-  Use the shortcut: `cmd + p`, and type in the input box: `Formatting Content`.
+  Use the shortcut: `cmd + p`, and type in the input box: `Format content`.
 
 ## License
 

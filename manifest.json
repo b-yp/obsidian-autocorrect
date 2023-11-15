@@ -1,7 +1,7 @@
 {
 	"id": "autocorrect-formatter",
 	"name": "Autocorrect Formatter",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"minAppVersion": "0.15.0",
 	"description": "A plugin running on Obsidian that utilizes autocorrect to format Markdown content.",
 	"author": "b-yp",

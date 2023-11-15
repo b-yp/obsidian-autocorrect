@@ -1,6 +1,6 @@
 {
 	"name": "autocorrect-formatter",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "A plugin running on Obsidian that utilizes autocorrect to format Markdown content.",
 	"main": "main.js",
 	"scripts": {
