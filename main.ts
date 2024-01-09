@@ -1,5 +1,5 @@
-import { Editor, MarkdownView, Plugin } from 'obsidian';
-import init, { format } from 'autocorrect-wasm'
+import { Editor, MarkdownView, Plugin, Notice } from 'obsidian';
+import init, { formatFor } from 'autocorrect-wasm'
 import { v4 as uuidv4 } from 'uuid'
 
 // @ts-ignore
@@ -35,7 +35,15 @@ export default class AutocorrectPlugin extends Plugin {
 					content = content.replace(i.linkRef, i.uuid)
 				})
 
-				let formattedContent = format(content)
+				const formatted = formatFor(content, 'md')
+				
+				if (formatted.error) {
+					return new Notice(formatted.error)
+				}
+				
+				new Notice('Format successful 🎉')
+
+				let formattedContent = formatted.out
 
 				tags?.forEach(i => {
 					formattedContent = formattedContent.replace(i.uuid, i.tag)
