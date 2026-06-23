@@ -1,13 +1,28 @@
 import { Editor, MarkdownView, Plugin, Notice } from 'obsidian';
-import init, { formatFor } from 'autocorrect-wasm'
+// @ts-ignore
+import * as autocorrectBg from '@huacnlee/autocorrect/autocorrect_bg.js'
 import { v4 as uuidv4 } from 'uuid'
 
 // @ts-ignore
-import autocorrectWasm from './pkg/autocorrect_wasm_bg.wasm'
+import autocorrectWasmBytes from '@huacnlee/autocorrect/autocorrect_bg.wasm'
 
 export default class AutocorrectPlugin extends Plugin {
 	async onload() {
-		await init(autocorrectWasm)
+		const importObject = {
+			"./autocorrect_bg.js": {
+				__wbindgen_json_parse: autocorrectBg.__wbindgen_json_parse,
+				__wbindgen_error_new: autocorrectBg.__wbindgen_error_new,
+				__wbindgen_throw: autocorrectBg.__wbindgen_throw,
+				__wbindgen_init_externref_table: autocorrectBg.__wbindgen_init_externref_table,
+			}
+		};
+
+		const { instance } = await WebAssembly.instantiate(autocorrectWasmBytes, importObject);
+		autocorrectBg.__wbg_set_wasm(instance.exports);
+
+		if (instance.exports.__wbindgen_start) {
+			(instance.exports.__wbindgen_start as Function)();
+		}
 
 		this.addCommand({
 			id: 'format-content',
@@ -35,7 +50,7 @@ export default class AutocorrectPlugin extends Plugin {
 					content = content.replace(i.linkRef, i.uuid)
 				})
 
-				const formatted = formatFor(content, 'md')
+				const formatted = autocorrectBg.formatFor(content, 'md')
 				
 				if (formatted.error) {
 					return new Notice(formatted.error)
