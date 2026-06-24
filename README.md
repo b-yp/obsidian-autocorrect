@@ -4,7 +4,15 @@
 
 ## Usage
 
-  Use the shortcut: `cmd + p`, and type in the input box: `Format content`.
+* **Default Hotkey**:
+  * Windows / Linux: `Ctrl + Alt + F`
+  * macOS: `Cmd + Option + F`
+* **Ribbon Icon**: Click the `align-left` icon (align left paragraphs symbol) on the left sidebar to format the active note.
+* **Editor Menu (Right-click)**: Right-click inside the editor and select **Format note** from the context menu.
+* **Command Palette**: Press `Ctrl + P` (or `Cmd + P`), search for `Autocorrect Formatter: Format content` and hit Enter.
+
+> [!TIP]
+> You can easily customize the hotkey in Obsidian's settings under **Hotkeys** by searching for `Autocorrect Formatter: Format content`.
 
 ## License
 

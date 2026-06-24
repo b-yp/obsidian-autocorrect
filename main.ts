@@ -24,53 +24,83 @@ export default class AutocorrectPlugin extends Plugin {
 			(instance.exports.__wbindgen_start as Function)();
 		}
 
+		// 1. 注册快捷键与命令
 		this.addCommand({
 			id: 'format-content',
 			name: 'Format content',
+			hotkeys: [{ modifiers: ["Mod", "Alt"], key: "f" }],
 			editorCallback: editor => {
-				let content = editor.getValue();
-
-				const tagReg = /#[^\s#]+/g
-				const linkRefReg = /\[\[.*?\]\]/g
-
-				const tags = content.match(tagReg)?.map(i => {
-					const uuid = uuidv4()
-					return { tag: i, uuid }
-				})
-				const linkRefs = content.match(linkRefReg)?.map(i => {
-					const uuid = uuidv4()
-					return { linkRef: i, uuid }
-				})
-
-				tags?.forEach(i => {
-					content = content.replace(i.tag, i.uuid)
-				})
-
-				linkRefs?.forEach(i => {
-					content = content.replace(i.linkRef, i.uuid)
-				})
-
-				const formatted = autocorrectBg.formatFor(content, 'md')
-				
-				if (formatted.error) {
-					return new Notice(formatted.error)
-				}
-				
-				new Notice('Format successful 🎉')
-
-				let formattedContent = formatted.out
-
-				tags?.forEach(i => {
-					formattedContent = formattedContent.replace(i.uuid, i.tag)
-				})
-
-				linkRefs?.forEach(i => {
-					formattedContent = formattedContent.replace(i.uuid, i.linkRef)
-				})
-
-				editor.setValue(formattedContent)
+				this.formatEditorContent(editor);
 			},
+		});
+
+		// 2. 注册侧边栏快捷按钮 (Ribbon Icon)
+		this.addRibbonIcon('align-left', 'Format active note', (evt: MouseEvent) => {
+			const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
+			if (markdownView) {
+				this.formatEditorContent(markdownView.editor);
+			} else {
+				new Notice('No active note to format');
+			}
+		});
+
+		// 3. 注册编辑器右键菜单项 (Editor Context Menu)
+		this.registerEvent(
+			this.app.workspace.on("editor-menu", (menu, editor, view) => {
+				menu.addItem((item) => {
+					item
+						.setTitle("Format note")
+						.setIcon("align-left")
+						.onClick(async () => {
+							this.formatEditorContent(editor);
+						});
+				});
+			})
+		);
+	}
+
+	formatEditorContent(editor: Editor) {
+		let content = editor.getValue();
+
+		const tagReg = /#[^\s#]+/g
+		const linkRefReg = /\[\[.*?\]\]/g
+
+		const tags = content.match(tagReg)?.map(i => {
+			const uuid = uuidv4()
+			return { tag: i, uuid }
 		})
+		const linkRefs = content.match(linkRefReg)?.map(i => {
+			const uuid = uuidv4()
+			return { linkRef: i, uuid }
+		})
+
+		tags?.forEach(i => {
+			content = content.replace(i.tag, i.uuid)
+		})
+
+		linkRefs?.forEach(i => {
+			content = content.replace(i.linkRef, i.uuid)
+		})
+
+		const formatted = autocorrectBg.formatFor(content, 'md')
+		
+		if (formatted.error) {
+			return new Notice(formatted.error)
+		}
+		
+		new Notice('Format successful 🎉')
+
+		let formattedContent = formatted.out
+
+		tags?.forEach(i => {
+			formattedContent = formattedContent.replace(i.uuid, i.tag)
+		})
+
+		linkRefs?.forEach(i => {
+			formattedContent = formattedContent.replace(i.uuid, i.linkRef)
+		})
+
+		editor.setValue(formattedContent)
 	}
 
 	onunload() { }
