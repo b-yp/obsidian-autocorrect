@@ -2,6 +2,7 @@ import { Editor, MarkdownView, Plugin, Notice, Modal, Setting, PluginSettingTab,
 // @ts-ignore
 import * as autocorrectBg from '@huacnlee/autocorrect/autocorrect_bg.js'
 import { v4 as uuidv4 } from 'uuid'
+import { t } from './lang/helpers'
 
 // @ts-ignore
 import autocorrectWasmBytes from '@huacnlee/autocorrect/autocorrect_bg.wasm'
@@ -27,7 +28,7 @@ export default class AutocorrectPlugin extends Plugin {
 		// 1. 注册快捷键与命令
 		this.addCommand({
 			id: 'format-content',
-			name: 'Format content',
+			name: t('format-content'),
 			hotkeys: [{ modifiers: ["Mod", "Alt"], key: "f" }],
 			editorCallback: editor => {
 				this.formatEditorContent(editor);
@@ -35,12 +36,12 @@ export default class AutocorrectPlugin extends Plugin {
 		});
 
 		// 2. 注册侧边栏快捷按钮 (Ribbon Icon)
-		this.addRibbonIcon('align-left', 'Format active note', (evt: MouseEvent) => {
+		this.addRibbonIcon('align-left', t('format-active-note'), (evt: MouseEvent) => {
 			const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
 			if (markdownView) {
 				this.formatEditorContent(markdownView.editor);
 			} else {
-				new Notice('No active note to format');
+				new Notice(t('no-active-note'));
 			}
 		});
 
@@ -49,7 +50,7 @@ export default class AutocorrectPlugin extends Plugin {
 			this.app.workspace.on("editor-menu", (menu, editor, view) => {
 				menu.addItem((item) => {
 					item
-						.setTitle("Format note")
+						.setTitle(t('format-note'))
 						.setIcon("align-left")
 						.onClick(async () => {
 							this.formatEditorContent(editor);
@@ -65,12 +66,12 @@ export default class AutocorrectPlugin extends Plugin {
 					const folder = file as TFolder;
 					menu.addItem((item) => {
 						item
-							.setTitle("Format all notes in folder")
+							.setTitle(t('format-folder'))
 							.setIcon("align-left")
 							.onClick(() => {
 								const mdFiles = this.getMarkdownFilesUnderFolder(folder);
 								if (mdFiles.length === 0) {
-									new Notice('No markdown files found under this folder.');
+									new Notice(t('no-md-in-folder'));
 									return;
 								}
 								new BulkFormatModal(this.app, mdFiles, this).open();
@@ -149,9 +150,9 @@ export default class AutocorrectPlugin extends Plugin {
 			if (original !== formatted) {
 				editor.setValue(formatted);
 			}
-			new Notice('Format successful 🎉')
+			new Notice(t('format-success'));
 		} catch (e) {
-			new Notice('Format failed: ' + (e.message || String(e)));
+			new Notice(t('format-failed') + (e.message || String(e)));
 		}
 	}
 
@@ -178,7 +179,7 @@ class BulkFormatModal extends Modal {
 
 	onOpen() {
 		const { contentEl } = this;
-		this.titleEl.setText('Autocorrect Bulk Formatter');
+		this.titleEl.setText(t('bulk-title'));
 		
 		// 阶段一：备份警告确认界面
 		this.renderWarningPhase();
@@ -189,18 +190,14 @@ class BulkFormatModal extends Modal {
 		contentEl.empty();
 
 		contentEl.createEl('p', {
-			text: `You are about to format ${this.files.length} markdown file(s).`,
+			text: t('bulk-desc', { count: this.files.length }),
 			cls: 'bulk-format-bold'
 		});
 
 		const warningBox = contentEl.createEl('div', { cls: 'bulk-format-warning-box' });
-		warningBox.createEl('h3', { text: '⚠️ Warning / 警告', cls: 'bulk-format-warning-title' });
+		warningBox.createEl('h3', { text: t('bulk-warning-title'), cls: 'bulk-format-warning-title' });
 		warningBox.createEl('p', { 
-			text: 'Bulk formatting is irreversible. There is no global undo. If something goes wrong, your files could be corrupted.' 
-		});
-		warningBox.createEl('p', { 
-			text: '批量格式化是不可逆的操作，无法通过撤销（Undo）恢复。请务必在运行前完整备份您的 Vault！',
-			cls: 'bulk-format-lang-zh'
+			text: t('bulk-warning-content')
 		});
 
 		// 确认备份的 checkbox
@@ -208,15 +205,15 @@ class BulkFormatModal extends Modal {
 		const checkbox = checkboxContainer.createEl('input', { type: 'checkbox' }) as HTMLInputElement;
 		checkbox.id = 'bulk-format-backup-confirm';
 		const label = checkboxContainer.createEl('label', { 
-			text: ' I have backed up my vault (我已完整备份我的笔记库)' 
+			text: t('bulk-backup-confirm')
 		});
 		label.setAttribute('for', checkbox.id);
 
 		// 按钮栏
 		const buttonContainer = contentEl.createEl('div', { cls: 'bulk-format-button-container' });
-		const cancelBtn = buttonContainer.createEl('button', { text: 'Cancel (取消)' });
+		const cancelBtn = buttonContainer.createEl('button', { text: t('bulk-cancel') });
 		const startBtn = buttonContainer.createEl('button', { 
-			text: 'Start Formatting (开始格式化)', 
+			text: t('bulk-start'), 
 			cls: 'mod-warning' 
 		}) as HTMLButtonElement;
 		startBtn.disabled = true;
@@ -236,7 +233,7 @@ class BulkFormatModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 
-		contentEl.createEl('p', { text: 'Formatting notes...' });
+		contentEl.createEl('p', { text: t('bulk-running') });
 
 		// 进度条
 		const progressContainer = contentEl.createEl('div', { cls: 'bulk-format-progress-container' });
@@ -244,16 +241,16 @@ class BulkFormatModal extends Modal {
 		progressBar.max = this.files.length;
 		progressBar.value = 0;
 
-		const progressText = contentEl.createEl('p', { text: `0 / ${this.files.length} file(s) processed` });
+		const progressText = contentEl.createEl('p', { text: t('bulk-processed', { current: 0, total: this.files.length }) });
 		const currentFileText = contentEl.createEl('p', { text: '', cls: 'bulk-format-current-file' });
 
 		// 取消按钮
 		const buttonContainer = contentEl.createEl('div', { cls: 'bulk-format-button-container' });
-		const stopBtn = buttonContainer.createEl('button', { text: 'Stop (停止)', cls: 'mod-warning' });
+		const stopBtn = buttonContainer.createEl('button', { text: t('bulk-stop'), cls: 'mod-warning' });
 		stopBtn.addEventListener('click', () => {
 			this.isCancelled = true;
 			stopBtn.disabled = true;
-			stopBtn.setText('Stopping...');
+			stopBtn.setText(t('bulk-stopping'));
 		});
 
 		// 开始循环格式化
@@ -268,8 +265,8 @@ class BulkFormatModal extends Modal {
 
 			const file = this.files[i];
 			progressBar.value = i + 1;
-			progressText.setText(`${i + 1} / ${this.files.length} file(s) processed`);
-			currentFileText.setText(`Processing: ${file.path}`);
+			progressText.setText(t('bulk-processed', { current: i + 1, total: this.files.length }));
+			currentFileText.setText(t('bulk-processing', { path: file.path }));
 
 			try {
 				const rawContent = await this.app.vault.read(file);
@@ -296,14 +293,14 @@ class BulkFormatModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 
-		const title = this.isCancelled ? 'Formatting Stopped (已中止)' : 'Formatting Completed (完成)';
+		const title = this.isCancelled ? t('bulk-stopped-title') : t('bulk-completed-title');
 		contentEl.createEl('h3', { text: title });
 
-		contentEl.createEl('p', { text: `Successfully formatted: ${result.successCount} file(s)` });
-		contentEl.createEl('p', { text: `Failed: ${result.failCount} file(s)` });
+		contentEl.createEl('p', { text: t('bulk-success-count', { count: result.successCount }) });
+		contentEl.createEl('p', { text: t('bulk-fail-count', { count: result.failCount }) });
 
 		if (result.failures.length > 0) {
-			contentEl.createEl('h4', { text: 'Failures List (失败文件列表):' });
+			contentEl.createEl('h4', { text: t('bulk-fail-list-title') });
 			const list = contentEl.createEl('ul', { cls: 'bulk-format-failure-list' });
 			const displayLimit = 10;
 			const displayFailures = result.failures.slice(0, displayLimit);
@@ -314,12 +311,12 @@ class BulkFormatModal extends Modal {
 			});
 
 			if (result.failures.length > displayLimit) {
-				list.createEl('li', { text: `... and ${result.failures.length - displayLimit} more errors.` });
+				list.createEl('li', { text: t('bulk-fail-more', { count: result.failures.length - displayLimit }) });
 			}
 		}
 
 		const buttonContainer = contentEl.createEl('div', { cls: 'bulk-format-button-container' });
-		const closeBtn = buttonContainer.createEl('button', { text: 'Close (关闭)' });
+		const closeBtn = buttonContainer.createEl('button', { text: t('bulk-close') });
 		closeBtn.addEventListener('click', () => this.close());
 	}
 
@@ -342,13 +339,13 @@ class AutocorrectSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl('h2', { text: 'Autocorrect Formatter Settings' });
+		containerEl.createEl('h2', { text: t('settings-title') });
 
 		new Setting(containerEl)
-			.setName('Format entire vault (格式化全库)')
-			.setDesc('Format all Markdown notes in your vault. Warning: Make sure you backup your files first!')
+			.setName(t('settings-bulk-name'))
+			.setDesc(t('settings-bulk-desc'))
 			.addButton(button => button
-				.setButtonText('Format entire vault')
+				.setButtonText(t('settings-bulk-btn'))
 				.setWarning()
 				.onClick(() => {
 					new BulkFormatModal(this.app, this.app.vault.getMarkdownFiles(), this.plugin).open();
