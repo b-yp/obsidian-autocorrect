@@ -103,7 +103,7 @@ export default class AutocorrectPlugin extends Plugin {
 
 	// 纯文字的 Markdown 格式化方法，可复用
 	formatMarkdownText(content: string): string {
-		const tagReg = /#[^\s#]+/g
+		const tagReg = /(?<=^|\s)#[^\s#]+/g
 		const linkRefReg = /\[\[.*?\]\]/g
 
 		const tags = content.match(tagReg)?.map(i => {
@@ -133,6 +133,14 @@ export default class AutocorrectPlugin extends Plugin {
 		let formattedContent = formatted.out
 
 		tags?.forEach(i => {
+			const uuidIdx = formattedContent.indexOf(i.uuid)
+			if (uuidIdx > 0) {
+				const prevChar = formattedContent[uuidIdx - 1]
+				if (!/\s/.test(prevChar)) {
+					formattedContent = formattedContent.replace(i.uuid, " " + i.tag)
+					return
+				}
+			}
 			formattedContent = formattedContent.replace(i.uuid, i.tag)
 		})
 
