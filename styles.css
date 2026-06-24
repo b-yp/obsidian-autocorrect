@@ -1,8 +1,119 @@
-/*
+/* Bulk format modal styling */
+.bulk-format-bold {
+    font-weight: 600;
+    font-size: 1.1em;
+    color: var(--text-normal);
+    margin-bottom: 16px;
+}
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+.bulk-format-warning-box {
+    background-color: var(--background-modifier-error-hover);
+    border-left: 4px solid var(--text-error);
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 20px;
+    color: var(--text-normal);
+}
 
-If your plugin does not need CSS, delete this file.
+.bulk-format-warning-title {
+    color: var(--text-error);
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+}
 
-*/
+.bulk-format-lang-zh {
+    font-size: 0.95em;
+    opacity: 0.85;
+    margin-top: 8px;
+}
+
+.bulk-format-checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: var(--background-secondary);
+    transition: background-color 0.2s ease;
+}
+
+.bulk-format-checkbox-container:hover {
+    background-color: var(--background-secondary-alt);
+}
+
+.bulk-format-checkbox-container input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+}
+
+.bulk-format-checkbox-container label {
+    cursor: pointer;
+    font-size: 0.95em;
+    user-select: none;
+}
+
+.bulk-format-button-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.bulk-format-progress-container {
+    width: 100%;
+    margin: 16px 0;
+}
+
+.bulk-format-progress-container progress {
+    width: 100%;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    border: none;
+    background-color: var(--background-secondary);
+}
+
+.bulk-format-progress-container progress::-webkit-progress-bar {
+    background-color: var(--background-secondary);
+}
+
+.bulk-format-progress-container progress::-webkit-progress-value {
+    background-color: var(--interactive-accent);
+    transition: width 0.1s ease;
+}
+
+.bulk-format-current-file {
+    font-family: var(--font-monospace);
+    font-size: 0.85em;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 4px 8px;
+    background-color: var(--background-secondary);
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.bulk-format-failure-list {
+    max-height: 180px;
+    overflow-y: auto;
+    background-color: var(--background-secondary);
+    border-radius: 4px;
+    padding: 10px 12px 10px 24px;
+    font-size: 0.9em;
+    color: var(--text-muted);
+    border: 1px solid var(--background-modifier-border);
+}
+
+.bulk-format-failure-list li {
+    margin-bottom: 6px;
+}
+
+.bulk-format-failure-list b {
+    color: var(--text-error);
+}
