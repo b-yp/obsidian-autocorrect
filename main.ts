@@ -103,19 +103,29 @@ export default class AutocorrectPlugin extends Plugin {
 
 	// 纯文字的 Markdown 格式化方法，可复用
 	formatMarkdownText(content: string): string {
+		// 跳过文档开头的 YAML Frontmatter，避免属性名中的中文导致冒号被替换为全角
+		const frontmatterReg = /^---[ \t]*\r?\n(?:[\s\S]*?\r?\n)?---[ \t]*(?:\r?\n|$)/;
+		const frontmatterMatch = content.match(frontmatterReg);
+		const frontmatter = frontmatterMatch ? frontmatterMatch[0] : '';
+		const body = frontmatter ? content.slice(frontmatter.length) : content;
+
+		if (!body) {
+			return frontmatter;
+		}
+
 		const tagReg = /(?<=^|\s)#[^\s#]+/g
 		const linkRefReg = /\[\[.*?\]\]/g
 
-		const tags = content.match(tagReg)?.map(i => {
+		const tags = body.match(tagReg)?.map(i => {
 			const uuid = uuidv4()
 			return { tag: i, uuid }
 		})
-		const linkRefs = content.match(linkRefReg)?.map(i => {
+		const linkRefs = body.match(linkRefReg)?.map(i => {
 			const uuid = uuidv4()
 			return { linkRef: i, uuid }
 		})
 
-		let tempContent = content;
+		let tempContent = body;
 		tags?.forEach(i => {
 			tempContent = tempContent.replace(i.tag, i.uuid)
 		})
@@ -148,7 +158,7 @@ export default class AutocorrectPlugin extends Plugin {
 			formattedContent = formattedContent.replace(i.uuid, i.linkRef)
 		})
 
-		return formattedContent;
+		return frontmatter + formattedContent;
 	}
 
 	formatEditorContent(editor: Editor) {
